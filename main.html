@@ -5,7 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Homestay App</title>
     <style>
-        /* ... (previous styles remain unchanged) ... */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #datetime {
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #333;
+        }
+        .checklist {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .checklist h2 {
+            margin-bottom: 10px;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .checklist li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .checklist input[type="checkbox"] {
+            margin-left: 10px;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .quantity-control button {
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            cursor: pointer;
+        }
+        .quantity-control input {
+            width: 60px;
+            height: 30px;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+        .notes-input {
+            margin-top: 20px;
+        }
+        .notes-input input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .submit-button {
+            margin-top: 20px;
+        }
+        .submit-button button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-button button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -44,19 +126,80 @@
             { name: "Shampoo Biru", min: 0, max: 2, step: 0.1 }
         ];
 
-        // ... (previous functions remain unchanged) ...
+        function createChecklistItem(item, index) {
+            return `
+                <li>
+                    <div class="quantity-control">
+                        <button onclick="changeQuantity(${index}, -1)">-</button>
+                        <input type="number" id="quantity${index}" value="0" min="${item.min}" max="${item.max}" step="${item.step}" onchange="validateQuantity(${index})">
+                        <button onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
+                    <input type="checkbox" id="item${index}">
+                    <label for="item${index}">${item.name}</label>
+                </li>
+            `;
+        }
+
+        function changeQuantity(index, change) {
+            const quantityElement = document.getElementById(`quantity${index}`);
+            let quantity = parseFloat(quantityElement.value);
+            let newQuantity = quantity + change * items[index].step;
+            newQuantity = Math.max(items[index].min, Math.min(items[index].max, newQuantity));
+            quantityElement.value = newQuantity.toFixed(getDecimalPlaces(items[index].step));
+        }
+
+        function validateQuantity(index) {
+            const quantityElement = document.getElementById(`quantity${index}`);
+            let quantity = parseFloat(quantityElement.value);
+            if (isNaN(quantity)) {
+                quantity = items[index].min;
+            } else {
+                quantity = Math.max(items[index].min, Math.min(items[index].max, quantity));
+            }
+            quantityElement.value = quantity.toFixed(getDecimalPlaces(items[index].step));
+        }
+
+        function getDecimalPlaces(step) {
+            return step.toString().split('.')[1]?.length || 0;
+        }
+
+        function initializeChecklist() {
+            const checklistElement = document.getElementById('checklistItems');
+            items.forEach((item, index) => {
+                checklistElement.innerHTML += createChecklistItem(item, index);
+            });
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            const formattedDateTime = now.toLocaleString('en-US', options);
+            document.getElementById('datetime').textContent = formattedDateTime;
+        }
 
         function generateCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            
-            // Add date and time
             const now = new Date();
-            const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            
-            csvContent += `Date,${dateStr}\n`;
-            csvContent += `Time,${timeStr}\n\n`;
-            
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            const formattedDateTime = now.toLocaleString('en-US', options);
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Submission Date and Time," + formattedDateTime + "\n\n";
             csvContent += "Item,Quantity,Checked\n";
 
             items.forEach((item, index) => {
@@ -71,7 +214,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `checklist_data_${dateStr.replace(/\//g, '-')}_${timeStr.replace(/:/g, '-')}.csv`);
+            link.setAttribute("download", "checklist_data.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
