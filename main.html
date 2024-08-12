@@ -3,49 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Heroku App with Timestamp</title>
+    <title>My Homestay App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding: 20px;
             background-color: white;
         }
         .container {
-            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
         }
-        #timestamp {
+        h1 {
+            margin-bottom: 20px;
+        }
+        #datetime {
             font-size: 1.2em;
             margin-top: 10px;
             color: #333;
+        }
+        .checklist {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .checklist h2 {
+            margin-bottom: 10px;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .checklist li {
+            margin-bottom: 10px;
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .notes-input {
+            margin-top: 20px;
+        }
+        .notes-input input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to my Heroku App!</h1>
-        <p>This is a simple HTML page deployed on Heroku.</p>
-        <p>Current time: <span id="timestamp"></span></p>
+        <h1>My Homestay App</h1>
+        <p>Current date and time: <span id="datetime"></span></p>
+
+        <div class="checklist">
+            <h2>Cleaning Item Checklist:</h2>
+            <ul>
+                <li><input type="checkbox" id="item1"><label for="item1">Toilet paper</label></li>
+                <li><input type="checkbox" id="item2"><label for="item2">Plastik L</label></li>
+                <li><input type="checkbox" id="item3"><label for="item3">Plastik S</label></li>
+                <li><input type="checkbox" id="item4"><label for="item4">Detergent</label></li>
+                <li><input type="checkbox" id="item5"><label for="item5">Febreeze</label></li>
+                <li><input type="checkbox" id="item6"><label for="item6">Sunlight Pinggan</label></li>
+                <li><input type="checkbox" id="item7"><label for="item7">Clorox</label></li>
+                <li><input type="checkbox" id="item8"><label for="item8">Ajax</label></li>
+                <li><input type="checkbox" id="item9"><label for="item9">Shampoo Purple</label></li>
+                <li><input type="checkbox" id="item10"><label for="item10">Shampoo Biru</label></li>
+            </ul>
+        </div>
+
+        <div class="notes-input">
+            <label for="notes">Nota Tambahan:</label>
+            <input type="text" id="notes" name="notes" placeholder="Masukkan nota tambahan di sini...">
+        </div>
     </div>
 
     <script>
-        function updateTimestamp() {
+        function updateDateTime() {
             const now = new Date();
-            const formattedTime = now.toLocaleString('en-US', { 
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
                 hour: '2-digit', 
                 minute: '2-digit', 
                 second: '2-digit',
                 hour12: true 
-            });
-            document.getElementById('timestamp').textContent = formattedTime;
+            };
+            const formattedDateTime = now.toLocaleString('en-US', options);
+            document.getElementById('datetime').textContent = formattedDateTime;
         }
 
-        // Update the timestamp immediately and then every second
-        updateTimestamp();
-        setInterval(updateTimestamp, 1000);
+        // Update the date and time immediately and then every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
     </script>
 </body>
+</html>
 </html>
