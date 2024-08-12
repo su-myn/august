@@ -36,9 +36,32 @@
         }
         .checklist li {
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
         .checklist input[type="checkbox"] {
+            margin-left: 10px;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
             margin-right: 10px;
+        }
+        .quantity-control button {
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            cursor: pointer;
+        }
+        .quantity-control input {
+            width: 60px;
+            height: 30px;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            margin: 0 5px;
         }
         .notes-input {
             margin-top: 20px;
@@ -59,17 +82,8 @@
 
         <div class="checklist">
             <h2>Cleaning Item Checklist:</h2>
-            <ul>
-                <li><input type="checkbox" id="item1"><label for="item1">Toilet paper</label></li>
-                <li><input type="checkbox" id="item2"><label for="item2">Plastik L</label></li>
-                <li><input type="checkbox" id="item3"><label for="item3">Plastik S</label></li>
-                <li><input type="checkbox" id="item4"><label for="item4">Detergent</label></li>
-                <li><input type="checkbox" id="item5"><label for="item5">Febreeze</label></li>
-                <li><input type="checkbox" id="item6"><label for="item6">Sunlight Pinggan</label></li>
-                <li><input type="checkbox" id="item7"><label for="item7">Clorox</label></li>
-                <li><input type="checkbox" id="item8"><label for="item8">Ajax</label></li>
-                <li><input type="checkbox" id="item9"><label for="item9">Shampoo Purple</label></li>
-                <li><input type="checkbox" id="item10"><label for="item10">Shampoo Biru</label></li>
+            <ul id="checklistItems">
+                <!-- Checklist items will be dynamically added here -->
             </ul>
         </div>
 
@@ -80,6 +94,63 @@
     </div>
 
     <script>
+        const items = [
+            { name: "Toilet paper", min: 0, max: 60, step: 1 },
+            { name: "Plastik L", min: 0, max: 60, step: 1 },
+            { name: "Plastik S", min: 0, max: 200, step: 1 },
+            { name: "Detergent", min: 0, max: 2, step: 0.1 },
+            { name: "Febreeze", min: 0, max: 8, step: 0.1 },
+            { name: "Sunlight Pinggan", min: 0, max: 99.99, step: 0.01 },
+            { name: "Clorox", min: 0, max: 4, step: 0.1 },
+            { name: "Ajax", min: 0, max: 2, step: 0.1 },
+            { name: "Shampoo Purple", min: 0, max: 2, step: 0.1 },
+            { name: "Shampoo Biru", min: 0, max: 2, step: 0.1 }
+        ];
+
+        function createChecklistItem(item, index) {
+            return `
+                <li>
+                    <div class="quantity-control">
+                        <button onclick="changeQuantity(${index}, -1)">-</button>
+                        <input type="number" id="quantity${index}" value="0" min="${item.min}" max="${item.max}" step="${item.step}" onchange="validateQuantity(${index})">
+                        <button onclick="changeQuantity(${index}, 1)">+</button>
+                    </div>
+                    <input type="checkbox" id="item${index}">
+                    <label for="item${index}">${item.name}</label>
+                </li>
+            `;
+        }
+
+        function changeQuantity(index, change) {
+            const quantityElement = document.getElementById(`quantity${index}`);
+            let quantity = parseFloat(quantityElement.value);
+            let newQuantity = quantity + change * items[index].step;
+            newQuantity = Math.max(items[index].min, Math.min(items[index].max, newQuantity));
+            quantityElement.value = newQuantity.toFixed(getDecimalPlaces(items[index].step));
+        }
+
+        function validateQuantity(index) {
+            const quantityElement = document.getElementById(`quantity${index}`);
+            let quantity = parseFloat(quantityElement.value);
+            if (isNaN(quantity)) {
+                quantity = items[index].min;
+            } else {
+                quantity = Math.max(items[index].min, Math.min(items[index].max, quantity));
+            }
+            quantityElement.value = quantity.toFixed(getDecimalPlaces(items[index].step));
+        }
+
+        function getDecimalPlaces(step) {
+            return step.toString().split('.')[1]?.length || 0;
+        }
+
+        function initializeChecklist() {
+            const checklistElement = document.getElementById('checklistItems');
+            items.forEach((item, index) => {
+                checklistElement.innerHTML += createChecklistItem(item, index);
+            });
+        }
+
         function updateDateTime() {
             const now = new Date();
             const options = { 
@@ -95,10 +166,10 @@
             document.getElementById('datetime').textContent = formattedDateTime;
         }
 
-        // Update the date and time immediately and then every second
+        // Initialize the checklist and update the date and time
+        initializeChecklist();
         updateDateTime();
         setInterval(updateDateTime, 1000);
     </script>
 </body>
-</html>
 </html>
